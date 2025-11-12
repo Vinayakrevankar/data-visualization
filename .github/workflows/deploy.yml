@@ -34,6 +34,8 @@ jobs:
         run: |
           ls -la dist/
           ls -la dist/assets/ || echo "Assets directory not found"
+          ls -la dist/data/ || echo "Data directory not found"
+          test -f dist/data/oscars.csv && echo "✓ CSV file found" || echo "✗ CSV file missing"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
