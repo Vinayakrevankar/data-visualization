@@ -16,25 +16,46 @@ export default function App(){
   const [rows,setRows] = useState(null)
   const [error,setError] = useState(null)
   useEffect(()=>{
-    d3.tsv('/data/oscars.csv', d=>{
-      const rec = {...d}
-      rec.YearParsed = parseYear(d.Year)
-      rec.Decade = rec.YearParsed!=null ? Math.floor(rec.YearParsed/10)*10 : null
-      const w=(d.Winner||'').toString().trim().toLowerCase()
-      rec.WinnerFlag = (w==='1'||w==='true'||w==='winner'||w==='yes')?1:0
-      rec.Cat = d.CanonicalCategory && d.CanonicalCategory.length ? d.CanonicalCategory : d.Category
-      return rec
-    })
-    .then(data => {
-      console.log('Data loaded:', data.length, 'rows')
-      console.log('Sample row:', data[0])
-      setRows(data)
-      setError(null)
-    })
-    .catch(err => {
-      console.error('Error loading CSV:', err)
-      setError(err.message)
-    })
+    // Use absolute path - files in public/ are served from root
+    // Try multiple paths to handle different deployment scenarios
+    const paths = [
+      '/data/oscars.csv',
+      './data/oscars.csv',
+      'data/oscars.csv'
+    ]
+    
+    const tryLoadData = (pathIndex = 0) => {
+      const dataPath = paths[pathIndex]
+      console.log(`Attempting to load data from: ${dataPath}`)
+      
+      d3.tsv(dataPath, d=>{
+        const rec = {...d}
+        rec.YearParsed = parseYear(d.Year)
+        rec.Decade = rec.YearParsed!=null ? Math.floor(rec.YearParsed/10)*10 : null
+        const w=(d.Winner||'').toString().trim().toLowerCase()
+        rec.WinnerFlag = (w==='1'||w==='true'||w==='winner'||w==='yes')?1:0
+        rec.Cat = d.CanonicalCategory && d.CanonicalCategory.length ? d.CanonicalCategory : d.Category
+        return rec
+      })
+      .then(data => {
+        console.log('Data loaded successfully:', data.length, 'rows')
+        console.log('Sample row:', data[0])
+        setRows(data)
+        setError(null)
+      })
+      .catch(err => {
+        console.error(`Error loading from ${dataPath}:`, err)
+        if (pathIndex < paths.length - 1) {
+          console.log(`Trying next path...`)
+          tryLoadData(pathIndex + 1)
+        } else {
+          console.error('All paths failed. Last attempted path:', dataPath)
+          setError(`Failed to load data. Last error: ${err.message}`)
+        }
+      })
+    }
+    
+    tryLoadData()
   },[])
 
   if(error) return <div className="container">Error loading data: {error}</div>
