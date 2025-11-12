@@ -68,7 +68,7 @@ export default function CategoryNetwork({ data }){
     const simulation = d3.forceSimulation(nodes)
       .force('link', d3.forceLink(links).id(d=>d.id).distance(80))
       .force('charge', d3.forceManyBody().strength(-300))
-      .force('center', d3.forceCenter(width/2, height/2))
+      .force('center', d3.forceCenter(width/2, height/2 + 20))
       .force('collision', d3.forceCollide().radius(d=>d.type==='film'? 25 : 15))
 
     const color = d3.scaleOrdinal()
@@ -127,23 +127,6 @@ export default function CategoryNetwork({ data }){
       node.attr('transform', d=>`translate(${d.x},${d.y})`)
     })
 
-    // Title
-    svg.append('text')
-      .attr('x', width/2)
-      .attr('y', 15)
-      .attr('fill','#e6eefc')
-      .attr('font-size',14)
-      .attr('font-weight','bold')
-      .attr('text-anchor','middle')
-      .text('Network: Top Winning Films & Their Categories')
-    svg.append('text')
-      .attr('x', width/2)
-      .attr('y', 30)
-      .attr('fill','#9fb0c9')
-      .attr('font-size',11)
-      .attr('text-anchor','middle')
-      .text('Blue = Films, Green = Categories. Drag nodes to explore.')
-
     // Legend
     const legendX = 20, legendY = height - 50
     const legendG = svg.append('g').attr('transform',`translate(${legendX},${legendY})`)
@@ -177,6 +160,14 @@ export default function CategoryNetwork({ data }){
 
   return (
     <div>
+      <div style={{marginBottom: '10px'}}>
+        <h3 style={{color: '#e6eefc', fontSize: '14px', fontWeight: 'bold', margin: '0 0 5px 0', textAlign: 'center'}}>
+          Network: Top Winning Films & Their Categories
+        </h3>
+        <p style={{color: '#9fb0c9', fontSize: '11px', margin: '0', textAlign: 'center'}}>
+          Blue = Films, Green = Categories. Drag nodes to explore.
+        </p>
+      </div>
       <div className="toolbar">
         <label className="sub">Top Films</label>
         <input
