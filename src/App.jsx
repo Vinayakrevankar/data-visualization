@@ -16,7 +16,7 @@ export default function App(){
   const [rows,setRows] = useState(null)
   const [error,setError] = useState(null)
   useEffect(()=>{
-    d3.csv('/data/oscars.csv', d=>{
+    d3.csv('data/oscars.csv', d=>{
       const rec = {...d}
       rec.YearParsed = parseYear(d.Year)
       rec.Decade = rec.YearParsed!=null ? Math.floor(rec.YearParsed/10)*10 : null
