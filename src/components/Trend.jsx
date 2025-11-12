@@ -28,24 +28,38 @@ export default function Trend({ data }){
   }, [])
 
   useEffect(()=>{
-    const width = Math.min(860, containerWidth - 32) // Account for padding
-    const height = 260
-    const m = {top:20,right:20,bottom:40,left:50}
-    // Adjust left margin for mobile
-    if (containerWidth < 600) m.left = 45
-    if (containerWidth < 400) m.left = 40
+    // Account for container padding (16px mobile, 24px desktop) + card padding (16px mobile, 24px desktop)
+    const padding = containerWidth < 768 ? 32 : 48
+    const width = Math.min(860, Math.max(300, containerWidth - padding))
+    const height = containerWidth < 768 ? 300 : 260
+    const m = {top:20,right:10,bottom:40,left:50}
+    // Adjust margins for mobile
+    if (containerWidth < 768) {
+      m.bottom = 35
+    }
+    if (containerWidth < 600) {
+      m.left = 40
+      m.right = 8
+    }
+    if (containerWidth < 400) {
+      m.left = 30
+      m.right = 5
+      m.top = 15
+      m.bottom = 30
+    }
     
     const svg=d3.select(svgRef.current)
     svg.attr('viewBox',`0 0 ${width} ${height}`).attr('width','100%').attr('height',height).style('max-width','100%')
     svg.selectAll('*').remove()
     const x=d3.scaleLinear().domain(d3.extent(yearly,d=>d.year)).range([m.left,width-m.right])
     const y=d3.scaleLinear().domain([0,d3.max(yearly,d=>d.count)||1]).nice().range([height-m.bottom,m.top])
-    const tickFontSize = containerWidth < 600 ? 10 : 12
-    svg.append('g').attr('transform',`translate(0,${height-m.bottom})`).call(d3.axisBottom(x).ticks(containerWidth < 600 ? 6 : 8).tickFormat(d3.format('d'))).selectAll('text').style('fill','#cdd7ea').style('font-size',tickFontSize)
-    svg.append('g').attr('transform',`translate(${m.left},0)`).call(d3.axisLeft(y)).selectAll('text').style('fill','#cdd7ea').style('font-size',tickFontSize)
+    const tickFontSize = containerWidth < 600 ? 9 : containerWidth < 400 ? 8 : 12
+    const xTicks = containerWidth < 400 ? 4 : containerWidth < 600 ? 5 : 8
+    svg.append('g').attr('transform',`translate(0,${height-m.bottom})`).call(d3.axisBottom(x).ticks(xTicks).tickFormat(d3.format('d'))).selectAll('text').style('fill','#cdd7ea').style('font-size',tickFontSize)
+    svg.append('g').attr('transform',`translate(${m.left},0)`).call(d3.axisLeft(y).ticks(containerWidth < 400 ? 3 : containerWidth < 600 ? 4 : 6)).selectAll('text').style('fill','#cdd7ea').style('font-size',tickFontSize)
     
     // Axis labels
-    const fontSize = containerWidth < 600 ? 10 : 12
+    const fontSize = containerWidth < 400 ? 9 : containerWidth < 600 ? 10 : 12
     svg.append('text').attr('x',width/2).attr('y',height-10).attr('fill','#9fb0c9').attr('font-size',fontSize).attr('text-anchor','middle')
       .text('Year')
     svg.append('text').attr('x',15).attr('y',height/2).attr('fill','#9fb0c9').attr('font-size',fontSize).attr('text-anchor','middle')
