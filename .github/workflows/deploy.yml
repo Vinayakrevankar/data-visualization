@@ -32,17 +32,13 @@ jobs:
 
       - name: Verify build output
         run: |
-          echo "Checking dist directory contents:"
-          ls -lah dist/
-          echo "Checking data directory:"
-          ls -lah dist/data/ || echo "Data directory not found!"
-          echo "Checking CNAME:"
-          cat dist/CNAME || echo "CNAME not found!"
+          ls -la dist/
+          ls -la dist/assets/ || echo "Assets directory not found"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          keep_files: false
+          cname: vinayakrevankar.com
 
