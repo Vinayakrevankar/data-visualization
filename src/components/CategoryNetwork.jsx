@@ -64,12 +64,17 @@ export default function CategoryNetwork({ data }){
     const { nodes, links } = network
     if (!nodes.length) return
 
-    // Force simulation
+    // Force simulation with better collision detection
     const simulation = d3.forceSimulation(nodes)
-      .force('link', d3.forceLink(links).id(d=>d.id).distance(80))
-      .force('charge', d3.forceManyBody().strength(-300))
+      .force('link', d3.forceLink(links).id(d=>d.id).distance(100))
+      .force('charge', d3.forceManyBody().strength(-400))
       .force('center', d3.forceCenter(width/2, height/2 + 20))
-      .force('collision', d3.forceCollide().radius(d=>d.type==='film'? 25 : 15))
+      .force('collision', d3.forceCollide().radius(d=>{
+        // Account for label width in collision radius
+        const baseRadius = d.type==='film'? 20 : 12
+        const labelWidth = d.name.length * 6 // Approximate label width
+        return baseRadius + labelWidth/2 + 10
+      }))
 
     const color = d3.scaleOrdinal()
       .domain(['film', 'category'])
@@ -99,12 +104,38 @@ export default function CategoryNetwork({ data }){
       .attr('stroke', '#fff')
       .attr('stroke-width', 2)
 
-    node.append('text')
-      .attr('dx', d=>d.type==='film'? 25 : 15)
-      .attr('dy', 4)
-      .attr('fill','#cdd7ea')
-      .attr('font-size', d=>d.type==='film'? 10 : 9)
-      .text(d=>d.name.length > (d.type==='film'? 20 : 15) ? d.name.slice(0, d.type==='film'? 20 : 15)+'…' : d.name)
+    // Add labels with background for better visibility
+    const labels = node.append('g').attr('class','label-group')
+    
+    labels.each(function(d) {
+      const labelGroup = d3.select(this)
+      const radius = d.type==='film'? 20 : 12
+      const fontSize = d.type==='film'? 10 : 9
+      const displayText = d.name.length > (d.type==='film'? 20 : 15) ? d.name.slice(0, d.type==='film'? 20 : 15)+'…' : d.name
+      // Estimate text width: approximately 0.6 * fontSize per character
+      const textWidth = displayText.length * fontSize * 0.6
+      
+      // Background rectangle positioned to the right of circle
+      labelGroup.append('rect')
+        .attr('x', radius + 5)
+        .attr('y', -fontSize/2 - 3)
+        .attr('width', textWidth + 8)
+        .attr('height', fontSize + 6)
+        .attr('fill', '#0a0f1b')
+        .attr('fill-opacity', 0.9)
+        .attr('rx', 4)
+        .attr('stroke', '#1b2750')
+        .attr('stroke-width', 1)
+      
+      // Text positioned on top of background
+      labelGroup.append('text')
+        .attr('x', radius + 9)
+        .attr('y', 4)
+        .attr('fill','#cdd7ea')
+        .attr('font-size', fontSize)
+        .attr('font-weight', '500')
+        .text(displayText)
+    })
 
     const tooltip = d3.select(tipRef.current)
 

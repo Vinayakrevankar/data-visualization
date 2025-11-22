@@ -6,7 +6,7 @@ import KPIs from './components/KPIs.jsx'
 import Stacked from './components/Stacked.jsx'
 import Trend from './components/Trend.jsx'
 import CategoryNetwork from './components/CategoryNetwork.jsx'
-import Treemap from './components/Treemap.jsx'
+import TopFilmsByCategory from './components/TopFilmsByCategory.jsx'
 import Sunburst from './components/Sunburst.jsx'
 import TopWinners from './components/TopWinners.jsx'
 import Pie from './components/Pie.jsx'
@@ -86,7 +86,7 @@ export default function App(){
         </div>
 
         <div className="grid-2">
-          <div className="card"><h2>Category–Film Treemap</h2><Treemap data={rows} /></div>
+          <div className="card"><h2>Top Films by Category</h2><TopFilmsByCategory data={rows} /></div>
           <div className="card"><h2>Class–Category–Film Hierarchy</h2><Sunburst data={rows} /></div>
         </div>
 
